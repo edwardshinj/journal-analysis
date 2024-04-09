@@ -7,7 +7,9 @@ Technical overview so far:
 React + Vite + Tailwind
 
 Planned development:
-Node Express? 
-Relational database
+Backend development
+Dockerization w/ K8s
+Cloud integration
 Data analysis
+
 
