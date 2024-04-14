@@ -10,7 +10,7 @@ const PreviousEntriesPage = () => {
     async function fetchData() {
       try {
         const username = 'edward'
-        const response = await fetch(`http://127.0.0.1:8000/user-entries/edward`);
+        const response = await fetch(`http://127.0.0.1:8000/entries/`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
