@@ -12,6 +12,11 @@ class EntryViewSet(viewsets.ModelViewSet):
     serializer_class = EntrySerializer
     #permission_classes = [permissions.IsAuthenticated]
 
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
 # Get all questions to show
 def questions(request):
     questions = Question.objects.all()

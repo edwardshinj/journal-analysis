@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-//import { API_URL } from '../../config'
+import React, { useState, useEffect } from "react";
 
 const PreviousEntriesPage = () => {
   const [data, setData] = useState(null);
@@ -9,10 +8,10 @@ const PreviousEntriesPage = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const username = 'edward'
-        const response = await fetch(`http://127.0.0.1:8000/entries/`);
+        const username = "edward";
+        const response = await fetch(`/api/entries/`);
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error("Failed to fetch data");
         }
         const jsonData = await response.json();
         setData(jsonData);
@@ -40,6 +39,6 @@ const PreviousEntriesPage = () => {
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
-}
+};
 
 export default PreviousEntriesPage;
