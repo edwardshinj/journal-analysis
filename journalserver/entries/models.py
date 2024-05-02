@@ -20,10 +20,39 @@ class ResponseSchema(models.Model):
 
 # Represents each quantitative question/metric
 class Question(models.Model):
+    RESPONSE_TYPES = (
+        ('LS', 'Likert Scale'),
+        ('MC', 'Multiple Choice'),
+        ('NV', 'Numerical Value'),
+    )
+
     metric_name = models.CharField(max_length=50)
     is_default = models.BooleanField(default=False)
     question_text = models.CharField(max_length=200)
-    response_schema = models.ForeignKey(ResponseSchema, on_delete=models.PROTECT)
+    response_type = models.CharField(
+        max_length=2,
+        choices=RESPONSE_TYPES,
+        default='LS',
+    )
+    ls_scale = models.SmallIntegerField(
+        validators=[
+            MinValueValidator(1),  # Minimum value
+            MaxValueValidator(100)  # Maximum value you want to set
+        ],
+        null=True,
+        default=None,
+        help_text='How many points should this likert scale have?')
+    mc_choices = models.CharField(
+        max_length=200,
+        null=True,
+        default=None,
+        help_text='The multiple choice options, comma separated'
+    )
+    nv_max = models.IntegerField(
+        null=True,
+        default=None,
+        help_text='The maximum value for these numerical responses'
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -35,25 +64,28 @@ class Entry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
     entry_date = models.DateTimeField(auto_now_add=True)
 
+    class Meta: 
+        verbose_name_plural = "Entries"
+
     def __str__(self):
         return f'Entry by {self.user} on {self.entry_date}' 
 
-def validate_choice_value(value):
+def validate_response_value(value):
     max_value = value.question.response_schema.scale
     if not 1 <= value <= max_value:
-        raise ValidationError(f"Choice value must be between 1 and {max_value} inclusive")
+        raise ValidationError(f"Response value must be between 1 and {max_value} inclusive")
 
 
-class Choice(models.Model):
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='choices')
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+class Response(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='responses')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='responses')
     #
-    choice_value = models.SmallIntegerField(
-        validators=[validate_choice_value]
+    response_value = models.SmallIntegerField(
+        validators=[validate_response_value]
     )
 
     def __str__(self):
-        return f'{self.question}: {self.choice_value}'
+        return f'{self.question}: {self.response_value}'
     
     
 class EntryText(models.Model):

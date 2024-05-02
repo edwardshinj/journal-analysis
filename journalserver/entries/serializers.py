@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Question, Choice, Entry, EntryText
+from .models import User, Question, Response, Entry, EntryText
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta: 
@@ -11,7 +11,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ['id', 'metric_name', 'is_default', 'question_text', 'pub_date']
 
-class ChoiceSerializer(serializers.ModelSerializer):
+class ResponseSerializer(serializers.ModelSerializer):
     question = QuestionSerializer(read_only=True)
     question_id = serializers.PrimaryKeyRelatedField(
         queryset=Question.objects.all(),
@@ -19,8 +19,8 @@ class ChoiceSerializer(serializers.ModelSerializer):
         write_only=True
     )
     class Meta: 
-        model = Choice
-        fields = ['id', 'question', 'question_id', 'choice_value']
+        model = Response
+        fields = ['id', 'question', 'question_id', 'response_value']
 
 #not yet used anywhere. 
 class EntryTextSerializer(serializers.ModelSerializer): 
@@ -29,16 +29,16 @@ class EntryTextSerializer(serializers.ModelSerializer):
         fields = ['id', 'text']
 
 class EntrySerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(many=True)
+    response = ResponseSerializer(many=True)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     
     class Meta: 
         model = Entry
-        fields = ['id', 'user', 'entry_date', 'choices']
+        fields = ['id', 'user', 'entry_date', 'responses']
 
     def create(self, validated_data):
-        choices_data = validated_data.pop('choices')
+        responses_data = validated_data.pop('responses')
         entry = Entry.objects.create(**validated_data)
-        for choice_data in choices_data:
-            Choice.objects.create(entry=entry, **choice_data)
+        for response_data in responses_data:
+            Response.objects.create(entry=entry, **response_data)
         return entry
